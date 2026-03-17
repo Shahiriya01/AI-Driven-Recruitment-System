@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Analytics | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-between align-center mb-5 pb-2 pt-2 animate-up">
+    <div class="d-flex align-center gap-4">
+        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--success); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <div>
+            <h2 style="margin-bottom: 0.25rem;">Performance Analytics</h2>
+            <p style="margin-bottom: 0; font-size: 1rem; color: var(--text-muted); font-weight: 500;">Model accuracy and recruitment metrics</p>
+        </div>
+    </div>
+    <a href="/dashboard" class="btn btn-outline" style="border-radius: 999px;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- System Accuracy Widgets -->
+<div class="grid grid-3 mb-5 animate-up" style="animation-delay: 0.1s;">
+    <div class="card p-5 d-flex align-center justify-between" style="background: rgba(255,255,255,0.8);">
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Avg Match Score</p>
+            <h2 style="margin-bottom: 0; font-size: 2.5rem; color: var(--text-main); font-weight: 800;">{{ avg_score }} <span style="font-size: 1.25rem; color: var(--text-muted); font-weight: 600;">%</span></h2>
+        </div>
+        <div style="width: 80px; height: 80px; position: relative;">
+            <canvas id="accuracyChart"></canvas>
+            <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--accent); filter: blur(20px); z-index: -1;"></div>
+        </div>
+    </div>
+    
+    <div class="card p-5 d-flex align-center justify-between" style="background: rgba(255,255,255,0.8);">
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Eligibility Rate</p>
+            <h2 style="margin-bottom: 0; font-size: 2.5rem; color: var(--text-main); font-weight: 800;">{{ eligible_pct }} <span style="font-size: 1.25rem; color: var(--text-muted); font-weight: 600;">%</span></h2>
+        </div>
+        <div style="width: 80px; height: 80px; position: relative;">
+            <canvas id="avgScoreChart"></canvas>
+            <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--success); filter: blur(20px); z-index: -1;"></div>
+        </div>
+    </div>
+
+    <!-- Neumorphic active gradient card -->
+    <div class="card p-5 d-flex align-center justify-between" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: white; border: none; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);">
+        <div style="position: relative; z-index: 2;">
+            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Processed Resumes</p>
+            <h2 style="margin-bottom: 0.5rem; font-size: 2.5rem; color: white; font-weight: 800;">{{ total }}</h2>
+        </div>
+        <div style="font-size: 4rem; color: white; opacity: 0.15; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); z-index: 1;">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+    </div>
+</div>
+
+<div class="grid animate-up" style="animation-delay: 0.2s;">
+    <!-- Main Candidates Glass Table -->
+    <div class="card p-0 overflow-hidden" style="padding: 0 !important;">
+        <div class="p-4 d-flex justify-between align-center" style="border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.4);">
+            <h3 style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ranking-star text-primary"></i> Candidate Leaderboard</h3>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline" style="border-radius: 999px; padding: 0.5rem 1rem; font-size: 0.9rem;"><i class="fa-solid fa-filter me-2"></i> Filter</button>
+                <button class="btn btn-outline" style="border-radius: 999px; padding: 0.5rem 1rem; font-size: 0.9rem; border-color: var(--secondary); color: var(--secondary);"><i class="fa-solid fa-download me-2"></i> Export Data</button>
+            </div>
+        </div>
+        <div class="table-container p-4">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Candidate Profile</th>
+                        <th>Role Target</th>
+                        <th style="width: 250px;">Interview Score / Output</th>
+                        <th>Workflow Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if candidates %}
+                    {% for c in candidates %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-center gap-3">
+                                <div style="width: 45px; height: 45px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary-light), white); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.5); box-shadow: var(--shadow-sm);">
+                                    {{ c.name[0] if c.name else '?' }}
+                                </div>
+                                <div>
+                                    <span style="font-weight: 700; font-size: 1rem; display: block; color: var(--secondary);">{{ c.name }}</span>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Screened {{ c.date }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-briefcase me-2 text-light"></i>{{ c.role_applied }}</span></td>
+                        <td>
+                            <div class="d-flex align-center gap-3">
+                                <div style="flex: 1; background: rgba(0,0,0,0.05); border-radius: 999px; height: 8px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+                                    <div style="background: linear-gradient(90deg, {% if c.match_score >= 75 %}var(--success), #4ade80{% elif c.match_score >= 50 %}var(--warning), #fcd34d{% else %}var(--danger), #f87171{% endif %}); width: {{ c.match_score }}%; height: 100%; border-radius: 999px; transition: width 1s ease;"></div>
+                                </div>
+                                <span style="font-weight: 800; font-size: 1rem; display: inline-block; width: 45px; text-align: right; color: var(--text-main);">{{ c.match_score }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {% if c.status == 'Eligible' %}badge-success{% else %}badge-danger{% endif %}"><i class="fa-regular fa-circle-dot me-1" style="font-size: 0.75rem;"></i> {{ c.status }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                                {% if c.ml_pred is not none %}
+                                    <span style="color: {% if c.ml_pred == 1 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                                        {{ '✓' if c.ml_pred == 1 else '✗' }} {{ '%.0f'|format(c.ml_prob * 100) if c.ml_prob is not none else '' }}%
+                                    </span>
+                                {% else %}
+                                    <span style="color: var(--text-muted);">—</span>
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center" style="padding: 3rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-inbox" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.3;"></i>
+                            No candidates screened yet. <a href="/screen" style="color: var(--primary);">Start screening!</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize mini charts using Chart.js with modern rounded UI styles
+    document.addEventListener('DOMContentLoaded', function() {
+        const createDonut = (ctxId, val, color) => {
+            new Chart(document.getElementById(ctxId), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [val, 100 - val],
+                        backgroundColor: [color, 'rgba(0,0,0,0.05)'],
+                        borderWidth: 0,
+                        cutout: '75%',
+                        borderRadius: 20 // nice rounded edges on the donut
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { tooltip: { enabled: false } },
+                    animation: { animateRotate: true, duration: 2000, easing: 'easeOutQuart' }
+                }
+            });
+        };
+
+        createDonut('accuracyChart', {{ avg_score }}, '#38bdf8');
+        createDonut('avgScoreChart', {{ eligible_pct }}, '#22c55e');
+    });
+</script>
+{% endblock %}

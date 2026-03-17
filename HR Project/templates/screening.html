@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Screening | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-between align-center mb-5 pb-2 pt-2 animate-up">
+    <div class="d-flex align-center gap-4">
+        <div
+            style="width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary-light) 0%, rgba(255,255,255,0.8) 100%); color: var(--primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-file-contract"></i>
+        </div>
+        <div>
+            <h2 style="margin-bottom: 0.25rem;">Resume Screening AI</h2>
+            <p style="margin-bottom: 0; font-size: 1rem; color: var(--text-muted); font-weight: 500;">Analyze and rank
+                specific candidates against job requirements</p>
+        </div>
+    </div>
+    <a href="/dashboard" class="btn btn-outline" style="border-radius: 999px;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="grid grid-2 animate-up" style="animation-delay: 0.1s; gap: 2rem;">
+    <!-- Upload Panel Glass Card -->
+    <div class="card" style="height: fit-content; padding: 2.5rem;">
+        <h3
+            style="font-size: 1.25rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-sliders text-primary"></i> Job Requirements
+        </h3>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group floating-label" style="margin-bottom: 2rem;">
+                <input type="text" name="role" id="role" placeholder=" " required>
+                <label for="role">Job Role / Position</label>
+            </div>
+
+            <div class="form-group floating-label" style="margin-bottom: 2rem;">
+                <input type="text" name="skills" id="skills" placeholder=" " required>
+                <label for="skills">Target Skills (comma-separated)</label>
+            </div>
+
+            <div class="form-group floating-label" style="margin-bottom: 2.5rem;">
+                <input type="number" name="experience" id="experience" value="0" min="0" placeholder=" " required>
+                <label for="experience">Minimum Experience (Years)</label>
+            </div>
+
+            <h3
+                style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--secondary); display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-cloud-arrow-up text-accent"></i> Document Upload
+            </h3>
+            <div class="upload-area mb-4" id="drop-zone">
+                <div class="upload-area-icon">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                </div>
+                <h4 style="margin-bottom: 0.5rem; font-size: 1.2rem;">Drag & Drop Resume</h4>
+                <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--text-muted);">or click to browse <span
+                        style="font-weight: 600;">(PDF/DOCX max 5MB)</span></p>
+                <input type="file" name="resume" id="file-input" accept=".pdf,.doc,.docx" required>
+            </div>
+
+            <!-- File selected feedback -->
+            <div id="file-name-display" class="mb-4 d-flex align-center gap-3 p-3"
+                style="display: none !important; background: var(--primary-light); border-radius: var(--radius-md); border: 1px solid rgba(37, 99, 235, 0.2); color: var(--primary); backdrop-filter: blur(4px);">
+                <i class="fa-solid fa-file-lines" style="font-size: 1.5rem;"></i>
+                <span id="file-name"
+                    style="font-weight: 600; font-size: 0.95rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></span>
+                <i class="fa-solid fa-circle-check ms-auto text-success" style="font-size: 1.25rem;"></i>
+            </div>
+
+            <button type="submit" class="btn w-100" style="padding: 1rem; font-size: 1.1rem;" id="analyze-btn">
+                <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Run AI Analysis
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Panel Glass Card -->
+    <div>
+        {% if error %}
+        <div class="card p-4 text-center animate-up"
+            style="background: rgba(254, 226, 226, 0.7); border: 1px solid rgba(248, 113, 113, 0.5);">
+            <div
+                style="width: 70px; height: 70px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--danger); margin: 0 auto 1.5rem; box-shadow: var(--shadow-sm);">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="color: #991b1b; margin-bottom: 0.5rem;">Analysis Failed</h3>
+            <p style="color: #b91c1c; margin-bottom: 0; font-weight: 500;">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        {% if result %}
+        <div class="card animate-up"
+            style="border-top: 6px solid {% if result.status == 'Eligible' %}var(--success){% else %}var(--danger){% endif %}; padding: 2.5rem;">
+            <div class="d-flex justify-between align-center mb-4 pb-3"
+                style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                <h3 style="margin-bottom: 0; font-size: 1.5rem;">Analysis Result</h3>
+                <span class="badge {% if result.status == 'Eligible' %}badge-success{% else %}badge-danger{% endif %}"
+                    style="font-size: 1rem; padding: 0.5rem 1rem;">
+                    {% if result.status == 'Eligible' %}<i class="fa-solid fa-check-circle me-1"></i>{% else %}<i
+                        class="fa-solid fa-xmark-circle me-1"></i>{% endif %}
+                    {{ result.status }}
+                </span>
+            </div>
+
+            <div class="mb-5">
+                <p
+                    style="text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 700; color: var(--text-muted);">
+                    Overall Match Score</p>
+                <div class="d-flex align-center gap-4">
+                    <h2
+                        style="font-size: 3.5rem; margin-bottom: 0; font-weight: 800; color: {% if result.match >= 75 %}var(--success){% elif result.match >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+                        {{ result.match }}<span
+                            style="font-size: 1.5rem; color: var(--text-muted); font-weight: 600;">%</span>
+                    </h2>
+                    <div style="flex: 1;">
+                        <div class="progress-container">
+                            <div class="progress-bar"
+                                style="width: {{ result.match }}%; background: {% if result.match >= 75 %}var(--success){% elif result.match >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-2 mb-4 p-4"
+                style="background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.05); border-radius: var(--radius-lg); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                <div>
+                    <span
+                        style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Candidate
+                        Name</span>
+                    <strong style="font-size: 1.25rem; color: var(--secondary);">{{ result.name }}</strong>
+                </div>
+                <div>
+                    <span
+                        style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Experience
+                        Detected</span>
+                    <strong
+                        style="font-size: 1.25rem; color: {% if result.status == 'Eligible' %}var(--text-main){% else %}var(--danger){% endif %}">
+                        {{ result.experience }} Years
+                    </strong>
+                </div>
+            </div>
+
+            {% if result.ml_pred is not none %}
+            <div class="grid grid-2 mb-4 p-4"
+                style="background: rgba(37,99,235,0.05); border: 1px solid rgba(37,99,235,0.15); border-radius: var(--radius-lg);">
+                <div>
+                    <span style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">ML Prediction</span>
+                    <strong style="font-size: 1.2rem; color: {% if result.ml_pred == 1 %}var(--success){% else %}var(--danger){% endif %}">
+                        {% if result.ml_pred == 1 %}<i class="fa-solid fa-robot me-1"></i> Selected{% else %}<i class="fa-solid fa-robot me-1"></i> Not Selected{% endif %}
+                    </strong>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">ML Confidence</span>
+                    <strong style="font-size: 1.2rem; color: var(--primary);">{{ '%.1f'|format(result.ml_prob * 100) }}%</strong>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <h4
+                    style="font-size: 1.1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--secondary);">
+                    <i class="fa-solid fa-bullseye" style="color: var(--primary);"></i> Highly Matched Skills
+                </h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for skill in result.matched %}
+                    <span class="badge"
+                        style="background: var(--primary-light); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.2); backdrop-filter: blur(4px); padding: 0.5rem 1rem; font-size: 0.9rem;"><i
+                            class="fa-solid fa-check me-2"></i> {{ skill }}</span>
+                    {% else %}
+                    <span
+                        style="color: var(--text-muted); font-style: italic; background: rgba(0,0,0,0.05); padding: 0.5rem 1rem; border-radius: var(--radius-sm);">No
+                        required skills matched.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="pt-4" style="border-top: 1px solid rgba(0,0,0,0.05);">
+                <h4 style="font-size: 0.95rem; margin-bottom: 1rem; color: var(--text-muted); font-weight: 600;">Other
+                    Extracted Keywords:</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for keyword in result.skills %}
+                    {% if keyword not in result.matched %}
+                    <span class="badge"
+                        style="background: rgba(255,255,255,0.8); color: var(--text-muted); font-weight: 500; font-size: 0.8rem; border: 1px solid rgba(0,0,0,0.05); text-transform: none;">{{
+                        keyword }}</span>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Placeholder State -->
+        <div class="card text-center d-flex flex-column align-center justify-center animate-up"
+            style="height: 100%; min-height: 500px; background: rgba(255,255,255,0.4); border: 2px dashed rgba(0,0,0,0.1); box-shadow: none;">
+            <div class="feature-icon-wrapper mx-auto"
+                style="width: 100px; height: 100px; font-size: 3rem; color: var(--text-light); margin-bottom: 1.5rem; background: rgba(255,255,255,0.7); box-shadow: none; border: 1px solid rgba(0,0,0,0.05);">
+                <i class="fa-solid fa-magnifying-glass-chart"></i>
+            </div>
+            <h3 style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 1.5rem;">Awaiting Document</h3>
+            <p style="color: var(--text-muted); font-weight: 500; max-width: 320px; margin: 0 auto; line-height: 1.6;">
+                Upload a resume and enter your job requirements to see the AI analysis results generated here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Make file input look interactive with modern animations
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const fileDisplay = document.getElementById('file-name-display');
+    const fileName = document.getElementById('file-name');
+    const btn = document.getElementById('analyze-btn');
+
+    fileInput.addEventListener('change', function (e) {
+        if (this.files && this.files.length > 0) {
+            fileDisplay.style.setProperty('display', 'flex', 'important');
+            // Adding a small fade in animation to the file display
+            fileDisplay.style.animation = 'fadeInUp 0.3s ease forwards';
+            fileName.textContent = this.files[0].name;
+            dropZone.style.display = 'none';
+        }
+    });
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        dropZone.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+        dropZone.classList.remove('dragover');
+    }
+
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        fileInput.files = files;
+
+        if (files && files.length > 0) {
+            fileDisplay.style.setProperty('display', 'flex', 'important');
+            fileDisplay.style.animation = 'fadeInUp 0.3s ease forwards';
+            fileName.textContent = files[0].name;
+            dropZone.style.display = 'none';
+        }
+    }
+
+    // Add loading effect
+    document.querySelector('form').addEventListener('submit', function () {
+        if (fileInput.files.length > 0) {
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Analyzing Document...';
+            btn.style.opacity = '0.9';
+            btn.style.cursor = 'wait';
+        }
+    });
+</script>
+{% endblock %}

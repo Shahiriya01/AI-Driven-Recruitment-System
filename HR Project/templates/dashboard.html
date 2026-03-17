@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-between align-center mb-5 pb-2 animate-up">
+    <div>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"><span style="font-weight: 300; color: var(--text-muted);">Welcome back,</span> {{ user }}!</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0;">Here's an overview of your recruitment pipeline today.</p>
+    </div>
+    <div>
+        <a href="/screen" class="btn btn-accent px-4 py-2">
+            <i class="fa-solid fa-plus me-2"></i> New Screening
+        </a>
+    </div>
+</div>
+
+<!-- Stats Overview with Glass Cards -->
+<div class="grid grid-4 mb-5 animate-up" style="animation-delay: 0.1s;">
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-light) 0%, rgba(255,255,255,0.8) 100%); color: var(--primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Total Screened</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.total }}</h3>
+        </div>
+    </div>
+    
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--success); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Eligible</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.eligible }}</h3>
+        </div>
+    </div>
+    
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--warning); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">ML Selected</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.ml_selected }}</h3>
+        </div>
+    </div>
+    
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--danger); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-user-xmark"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Not Eligible</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.not_eligible }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Main Quick Actions Grid -->
+<div class="d-flex justify-between align-center mt-5 mb-4 animate-up" style="animation-delay: 0.2s;">
+    <h3 style="margin: 0; font-size: 1.5rem;">Quick Actions</h3>
+</div>
+
+<div class="grid grid-3 mb-5 animate-up" style="animation-delay: 0.2s;">
+    <div class="card text-center d-flex flex-column justify-between p-5">
+        <div>
+            <div class="feature-icon-wrapper mx-auto" style="color: var(--primary); margin: 0 auto 1.5rem;">
+                <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Resume Screening</h3>
+            <p style="font-size: 0.95rem;">Upload resumes and use our AI to match them against job descriptions automatically.</p>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="/screen" class="btn w-100 py-3"><i class="fa-solid fa-expand me-2"></i> Scan New Candidates</a>
+        </div>
+    </div>
+
+    <div class="card text-center d-flex flex-column justify-between p-5">
+        <div>
+            <div class="feature-icon-wrapper mx-auto" style="color: var(--success); margin: 0 auto 1.5rem;">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Candidate Performance</h3>
+            <p style="font-size: 0.95rem;">Track interview scores, statuses, and performance metrics for your candidates.</p>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="/performance" class="btn btn-outline w-100 py-3" style="border-radius: 999px;"><i class="fa-solid fa-eye me-2"></i> View Analytics</a>
+        </div>
+    </div>
+
+    <div class="card text-center d-flex flex-column justify-between p-5" style="border: 1px dashed rgba(0,0,0,0.1); background: rgba(255,255,255,0.4);">
+        <div style="opacity: 0.6;">
+            <div class="feature-icon-wrapper mx-auto" style="color: var(--text-muted); margin: 0 auto 1.5rem; background: transparent; border: 1px solid rgba(0,0,0,0.1); box-shadow: none;">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Account Settings</h3>
+            <p style="font-size: 0.95rem;">Manage your company profile, email preferences, and password settings.</p>
+        </div>
+        <div class="mt-4 text-center">
+            <button class="btn btn-secondary w-100 py-3" style="opacity: 0.6; cursor: not-allowed;"><i class="fa-solid fa-lock me-2"></i> Coming Soon</button>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Glass Table -->
+<div class="card mt-5 p-0 overflow-hidden animate-up" style="animation-delay: 0.3s;">
+    <div class="p-4" style="border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.3);">
+        <h3 style="margin: 0; font-size: 1.25rem;">Recent Screenings</h3>
+        <a href="#" style="font-size: 0.9rem; font-weight: 600; color: var(--primary); text-decoration: none;">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+    </div>
+    <div class="table-container p-3" style="overflow-x: auto;">
+        {% if records %}
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
+            <thead>
+                <tr style="background: rgba(37,99,235,0.06); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; color: var(--text-muted);">
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">#</th>
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">Candidate</th>
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">Role Applied</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">Match %</th>
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">Date</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">Status</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">ML Pred</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">ML Prob</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in records %}
+            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.03)'" onmouseout="this.style.background='transparent'">
+                <td style="padding: 0.85rem 1rem; color: var(--text-muted); font-weight: 600;">{{ row.id }}</td>
+                <td style="padding: 0.85rem 1rem; font-weight: 600; color: var(--secondary);">{{ row.name }}</td>
+                <td style="padding: 0.85rem 1rem; color: var(--text-main);">{{ row.role_applied }}</td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    <span style="font-weight: 700; color: {% if row.match_score >= 75 %}var(--success){% elif row.match_score >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+                        {{ row.match_score }}%
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem; color: var(--text-muted);">{{ row.date }}</td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    <span class="badge {% if row.status == 'Eligible' %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 0.78rem;">
+                        {{ row.status }}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    {% if row.ml_pred is not none %}
+                        <span style="font-weight: 700; color: {% if row.ml_pred == 1 %}var(--success){% else %}var(--danger){% endif %};">
+                            {{ '✓ Selected' if row.ml_pred == 1 else '✗ Rejected' }}
+                        </span>
+                    {% else %}
+                        <span style="color: var(--text-muted);">—</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: center; font-weight: 600; color: var(--primary);">
+                    {% if row.ml_prob is not none %}
+                        {{ '%.1f'|format(row.ml_prob * 100) }}%
+                    {% else %}
+                        <span style="color: var(--text-muted);">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center p-5" style="color: var(--text-muted);">
+            <i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p style="font-size: 1rem; font-weight: 500;">No screening records yet. <a href="/screen" style="color: var(--primary);">Start screening candidates!</a></p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

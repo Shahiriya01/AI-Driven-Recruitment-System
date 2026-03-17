@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Login | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form-wrapper animate-up">
+        <div class="auth-form-card">
+            <div class="text-center mb-4 pb-2">
+                <div style="width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary-light) 0%, #fff 100%); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; margin: 0 auto 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+                <h2>Welcome Back</h2>
+                <p>Sign in to your HR control center</p>
+            </div>
+            
+            {% if msg %}
+            <div class="mb-4 p-3 text-center" style="background: rgba(254, 226, 226, 0.8); color: #991b1b; border: 1px solid #fecaca; border-radius: var(--radius-md); font-size: 0.95rem; backdrop-filter: blur(4px);">
+                <i class="fa-solid fa-circle-exclamation me-1"></i> {{ msg }}
+            </div>
+            {% endif %}
+            
+            <form method="post">
+                <div class="form-group floating-label">
+                    <input type="text" name="username" id="username" placeholder=" " required autofocus>
+                    <label for="username">Username</label>
+                    <i class="fa-regular fa-user"></i>
+                </div>
+                
+                <div class="form-group floating-label" style="margin-bottom: 2.5rem;">
+                    <input type="password" name="password" id="password" placeholder=" " required>
+                    <label for="password">Password</label>
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                
+                <button type="submit" class="btn w-100" style="padding: 1rem;">
+                    Secure Sign In <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+            
+            <div class="text-center mt-4 pt-4" style="border-top: 1px solid rgba(0,0,0,0.05); color: var(--text-muted); font-size: 0.95rem;">
+                New to NextGen HR? <a href="/register" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 0.5rem; position: relative;">Create Account</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="auth-banner animate-up" style="animation-delay: 0.2s;">
+        <div class="auth-banner-content">
+            <div style="font-size: 5rem; opacity: 0.9; margin-bottom: 1.5rem;"><i class="fa-solid fa-shield-halved"></i></div>
+            <h2 style="color: white; font-size: 3rem; margin-bottom: 1rem;">Secure HR Portal</h2>
+            <p style="font-size: 1.25rem; opacity: 0.9; max-width: 450px; margin: 0 auto; line-height: 1.6;">Streamline your recruitment pipeline with confidence. All data is encrypted and securely processed by our AI engines.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

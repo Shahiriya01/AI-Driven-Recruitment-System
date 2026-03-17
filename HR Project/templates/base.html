@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Next-Gen HR{% endblock %}</title>
+    
+    <!-- Google Fonts for Modern Appearance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Chart.js for Dashboards -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="page-fade-in">
+
+<nav>
+    <a href="/" class="nav-brand">
+        <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <i class="fa-solid fa-layer-group pe-1"></i> NextGen<span>HR</span>
+        </div>
+    </a>
+    
+    <div class="menu-toggle" id="mobile-menu">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+    
+    <div class="nav-links" id="nav-links">
+        {% if session.user %}
+            <a href="/dashboard"><i class="fa-solid fa-border-all me-1"></i> Dashboard</a>
+            <a href="/screen"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> Screening</a>
+            <a href="/performance"><i class="fa-solid fa-chart-line me-1"></i> Performance</a>
+            <a href="/logout" class="btn btn-outline" style="padding: 0.5rem 1.2rem; border-color: var(--danger); color: var(--danger);"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a>
+        {% else %}
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            <a href="/login" style="margin-left: 1rem; font-weight: 700;">Sign In</a>
+            <a href="/register" class="btn" style="padding: 0.5rem 1.5rem;">Get Started</a>
+        {% endif %}
+    </div>
+</nav>
+
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+    // Simple Hamburger Menu Toggle
+    document.getElementById('mobile-menu').addEventListener('click', function() {
+        document.getElementById('nav-links').classList.toggle('active');
+        const icon = this.querySelector('i');
+        if (icon.classList.contains('fa-bars')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // Add page transition effect for links inside the app mostly
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Only apply to internal links
+            if(this.hostname === window.location.hostname && !this.getAttribute('href').startsWith('#') && this.getAttribute('target') !== '_blank') {
+                const destination = this.href;
+                if(window.location.href !== destination) {
+                    e.preventDefault();
+                    document.body.style.opacity = '0';
+                    document.body.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => {
+                        window.location = destination;
+                    }, 300);
+                }
+            }
+        });
+    });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
