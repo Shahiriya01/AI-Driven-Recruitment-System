@@ -319,6 +319,13 @@ PER_PAGE = 10  # rows per page
 @login_required
 def dashboard():
     uid = session.get("user_id")
+    username = session.get("user")
+    
+    # Re-sync user_id if missing from session but user is logged in
+    if uid is None and username:
+        uid = get_user_id(username)
+        session["user_id"] = uid
+
     conn = get_db()
 
     # Full dataset for stat cards (unfiltered)
@@ -514,8 +521,10 @@ def screen():
             )
             conn.commit()
             conn.close()
+            print(f"Successfully saved screening for {name} (User ID: {uid})")
         except Exception as e:
-            print("DB insert error:", e)
+            print(f"CRITICAL: Database insert error for {name}: {e}")
+            return render_template("screening.html", result=result, error="Database error: Could not save result.")
 
     return render_template("screening.html", result=result)
 
