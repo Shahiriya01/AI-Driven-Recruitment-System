@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% block title %}Batch Results | NextGen HR{% endblock %}
+
+{% block content %}
+<div id="results-app" class="animate-up">
+    <!-- Header -->
+    <div class="d-flex justify-between align-center mb-4 pb-2">
+        <div class="d-flex align-center gap-4">
+            <div style="width:50px;height:50px;background:linear-gradient(135deg,var(--primary-light),rgba(255,255,255,0.8));color:var(--primary);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:var(--shadow-sm);">
+                <i class="fa-solid fa-chart-bar"></i>
+            </div>
+            <div>
+                <h2 style="margin-bottom:0.15rem;font-size:1.5rem;" id="batch-title">{{ batch.batch_name or 'Batch Results' }}</h2>
+                <p style="margin:0;font-size:0.9rem;color:var(--text-muted);">Role: <strong>{{ batch.role }}</strong> &middot; Uploaded {{ batch.total_files }} resumes</p>
+            </div>
+        </div>
+        <div class="d-flex align-center gap-3">
+            <a href="/bulk-screen" class="btn btn-outline" style="border-radius:999px;padding:0.5rem 1.2rem;font-size:0.9rem;">
+                <i class="fa-solid fa-plus me-1"></i> New Batch
+            </a>
+            <a href="/dashboard" class="btn btn-outline" style="border-radius:999px;padding:0.5rem 1.2rem;font-size:0.9rem;border-color:var(--text-muted);color:var(--text-muted);">
+                <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Pills -->
+    <div class="stat-pills mb-4" id="stats-bar">
+        <div class="stat-pill"><div><div class="stat-num" id="s-total">—</div><div class="stat-label">Total</div></div></div>
+        <div class="stat-pill"><div><div class="stat-num" id="s-eligible" style="color:var(--success);">—</div><div class="stat-label">Eligible</div></div></div>
+        <div class="stat-pill"><div><div class="stat-num" id="s-rejected" style="color:var(--danger);">—</div><div class="stat-label">Not Eligible</div></div></div>
+        <div class="stat-pill"><div><div class="stat-num" id="s-flagged" style="color:var(--warning);">—</div><div class="stat-label">Flagged</div></div></div>
+        <div class="stat-pill"><div><div class="stat-num" id="s-ml" style="color:var(--primary);">—</div><div class="stat-label">ML Selected</div></div></div>
+        <div class="stat-pill"><div><div class="stat-num" id="s-avg">—%</div><div class="stat-label">Avg Match</div></div></div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+        <div style="position:relative;flex:1;min-width:180px;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.8rem;"></i>
+            <input type="text" id="search-input" placeholder="Search name, email, skill..." style="padding-left:2.2rem;width:100%;">
+        </div>
+        <select id="filter-status"><option value="">All Status</option><option value="Eligible">Eligible</option><option value="Not Eligible">Not Eligible</option></select>
+        <select id="filter-review"><option value="">All Reviews</option><option value="pending">Pending</option><option value="reviewed">Reviewed</option><option value="flagged">Flagged</option><option value="rejected">Rejected</option></select>
+        <select id="sort-select"><option value="match_desc">Match ↓</option><option value="match_asc">Match ↑</option><option value="exp_desc">Experience ↓</option><option value="name_asc">Name A-Z</option><option value="ml_desc">ML Score ↓</option></select>
+        <div class="bulk-check" title="Select All" style="gap:0.4rem;font-size:0.85rem;font-weight:600;color:var(--text-muted);cursor:pointer;">
+            <input type="checkbox" id="select-all"> <label for="select-all" style="cursor:pointer;">All</label>
+        </div>
+    </div>
+
+    <!-- Candidate List -->
+    <div id="candidate-list" style="min-height:200px;">
+        <div class="text-center p-5" style="color:var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:2rem;"></i><p class="mt-2">Loading results...</p></div>
+    </div>
+
+    <!-- Batch Action Bar (hidden until selection) -->
+    <div class="batch-action-bar" id="action-bar" style="display:none;">
+        <span style="font-weight:700;font-size:0.95rem;"><span id="sel-count">0</span> selected</span>
+        <div class="d-flex align-center gap-2">
+            <button class="action-btn btn-review" onclick="batchAction('reviewed')"><i class="fa-solid fa-check"></i> Reviewed</button>
+            <button class="action-btn btn-flag" onclick="batchAction('flagged')"><i class="fa-solid fa-flag"></i> Flag</button>
+            <button class="action-btn btn-reject" onclick="batchAction('rejected')"><i class="fa-solid fa-xmark"></i> Reject</button>
+            <button class="action-btn btn-export" onclick="doCompare()"><i class="fa-solid fa-code-compare"></i> Compare</button>
+            <div style="width:1px;height:24px;background:rgba(255,255,255,0.2);margin:0 0.25rem;"></div>
+            <button class="action-btn btn-export" onclick="exportBatch('csv')"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button class="action-btn btn-export" onclick="exportBatch('json')"><i class="fa-solid fa-file-code"></i> JSON</button>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="detail-modal-overlay" id="detail-overlay">
+    <div class="detail-modal">
+        <div class="detail-modal-header">
+            <h3 style="margin:0;font-size:1.2rem;" id="detail-name">Candidate</h3>
+            <div class="d-flex align-center gap-2">
+                <button onclick="navDetail(-1)" style="border:none;background:rgba(0,0,0,0.05);border-radius:50%;width:32px;height:32px;cursor:pointer;" title="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="navDetail(1)" style="border:none;background:rgba(0,0,0,0.05);border-radius:50%;width:32px;height:32px;cursor:pointer;" title="Next"><i class="fa-solid fa-chevron-right"></i></button>
+                <button class="detail-modal-close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div class="detail-modal-body" id="detail-body"></div>
+    </div>
+</div>
+
+<!-- Compare Modal -->
+<div class="compare-overlay" id="compare-overlay">
+    <div class="compare-panel">
+        <div style="padding:1.25rem 2rem;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;font-size:1.1rem;"><i class="fa-solid fa-code-compare me-2 text-primary"></i>Side-by-Side Comparison</h3>
+            <button class="detail-modal-close" onclick="closeCompare()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="compare-body" style="padding:1.5rem 2rem;overflow-x:auto;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const BATCH_ID = {{ batch_id }};
+let allCandidates = [];
+let selectedIds = new Set();
+let currentDetailIdx = -1;
+
+// ===== Load Data =====
+async function loadResults() {
+    const q = document.getElementById('search-input').value;
+    const status = document.getElementById('filter-status').value;
+    const review = document.getElementById('filter-review').value;
+    const sort = document.getElementById('sort-select').value;
+
+    const params = new URLSearchParams({q, status, review, sort});
+    const resp = await fetch(`/api/batch/${BATCH_ID}/results?${params}`);
+    const data = await resp.json();
+    if (!data.success) return;
+
+    // Update stats
+    const s = data.stats;
+    document.getElementById('s-total').textContent = s.total;
+    document.getElementById('s-eligible').textContent = s.eligible;
+    document.getElementById('s-rejected').textContent = s.not_eligible;
+    document.getElementById('s-flagged').textContent = s.flagged;
+    document.getElementById('s-ml').textContent = s.ml_selected;
+    document.getElementById('s-avg').textContent = s.avg_match + '%';
+
+    allCandidates = data.candidates;
+    renderCandidates();
+}
+
+function renderCandidates() {
+    const list = document.getElementById('candidate-list');
+    if (!allCandidates.length) {
+        list.innerHTML = '<div class="text-center p-5" style="color:var(--text-muted);"><i class="fa-solid fa-inbox" style="font-size:2.5rem;opacity:0.3;"></i><p class="mt-2">No candidates match your filters</p></div>';
+        return;
+    }
+
+    list.innerHTML = allCandidates.map((c, i) => {
+        const matchClass = c.match_score >= 75 ? 'match-high' : c.match_score >= 50 ? 'match-mid' : 'match-low';
+        const scoreClass = c.match_score >= 75 ? 'high' : c.match_score >= 50 ? 'mid' : 'low';
+        const reviewClass = c.review_status === 'rejected' ? 'review-rejected' : '';
+        const selClass = selectedIds.has(c.id) ? 'selected' : '';
+        const initial = c.name ? c.name[0].toUpperCase() : '?';
+        const skillsHtml = (c.matched_skills || []).slice(0, 4).map(s =>
+            `<span class="skill-tag matched">${s}</span>`
+        ).join('') + ((c.skills || []).filter(s => !(c.matched_skills||[]).includes(s)).slice(0, 3).map(s =>
+            `<span class="skill-tag">${s}</span>`
+        ).join(''));
+        const mlIcon = c.ml_pred === 1
+            ? '<span style="color:var(--success);font-weight:700;" title="ML Selected"><i class="fa-solid fa-robot"></i> ✓</span>'
+            : c.ml_pred === 0
+            ? '<span style="color:var(--danger);font-weight:700;" title="ML Rejected"><i class="fa-solid fa-robot"></i> ✗</span>'
+            : '<span style="color:var(--text-muted);">—</span>';
+
+        return `
+        <div class="candidate-row ${matchClass} ${reviewClass} ${selClass}" data-id="${c.id}" data-idx="${i}">
+            <div class="bulk-check"><input type="checkbox" ${selectedIds.has(c.id)?'checked':''} onchange="toggleSelect(${c.id})"></div>
+            <div class="candidate-info">
+                <div class="d-flex align-center gap-3">
+                    <div style="width:40px;height:40px;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--primary-light),white);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0;">${initial}</div>
+                    <div style="min-width:0;">
+                        <div class="candidate-name">${c.name || 'Unknown'}</div>
+                        <div class="candidate-meta">${c.email||''} ${c.experience ? '&middot; '+c.experience+' yrs' : ''} ${c.education ? '&middot; '+c.education : ''}</div>
+                        <div class="candidate-skills">${skillsHtml}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="score-display">
+                <div class="score-value ${scoreClass}">${c.match_score}%</div>
+                <div style="background:rgba(0,0,0,0.06);border-radius:999px;height:5px;margin-top:0.3rem;overflow:hidden;">
+                    <div style="height:100%;width:${c.match_score}%;border-radius:999px;background:${c.match_score>=75?'var(--success)':c.match_score>=50?'var(--warning)':'var(--danger)'};"></div>
+                </div>
+            </div>
+            <div class="text-center">${mlIcon}</div>
+            <div class="text-center"><span class="review-badge ${c.review_status}">${c.review_status}</span></div>
+            <div class="d-flex align-center gap-2" style="justify-content:flex-end;">
+                <button onclick="openDetail(${i})" style="border:none;background:var(--primary-light);color:var(--primary);border-radius:999px;padding:0.35rem 0.75rem;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='var(--primary-light)';this.style.color='var(--primary)'">
+                    <i class="fa-solid fa-eye me-1"></i>Detail
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===== Selection =====
+function toggleSelect(id) {
+    if (selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+    updateActionBar();
+    renderCandidates();
+}
+
+document.getElementById('select-all').addEventListener('change', function() {
+    if (this.checked) {
+        allCandidates.forEach(c => selectedIds.add(c.id));
+    } else {
+        selectedIds.clear();
+    }
+    updateActionBar();
+    renderCandidates();
+});
+
+function updateActionBar() {
+    const bar = document.getElementById('action-bar');
+    const cnt = document.getElementById('sel-count');
+    cnt.textContent = selectedIds.size;
+    bar.style.display = selectedIds.size > 0 ? 'flex' : 'none';
+}
+
+// ===== Batch Actions =====
+async function batchAction(action) {
+    const ids = Array.from(selectedIds);
+    if (!ids.length) return;
+    const resp = await fetch(`/api/batch/${BATCH_ID}/action`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({candidate_ids: ids, action})
+    });
+    const data = await resp.json();
+    if (data.success) {
+        showToast(`${data.updated} candidate(s) marked as ${action}`, 'success');
+        selectedIds.clear();
+        updateActionBar();
+        loadResults();
+    }
+}
+
+// ===== Export =====
+function exportBatch(fmt) {
+    const status = document.getElementById('filter-status').value;
+    const review = document.getElementById('filter-review').value;
+    window.open(`/api/batch/${BATCH_ID}/export?format=${fmt}&status=${status}&review=${review}`, '_blank');
+}
+
+// ===== Detail Modal =====
+async function openDetail(idx) {
+    currentDetailIdx = idx;
+    const c = allCandidates[idx];
+    if (!c) return;
+
+    const resp = await fetch(`/api/candidate/${c.id}/detail`);
+    const data = await resp.json();
+    if (!data.success) return;
+    const d = data.candidate;
+
+    document.getElementById('detail-name').textContent = d.name || 'Unknown';
+    const matchColor = d.match_score >= 75 ? 'var(--success)' : d.match_score >= 50 ? 'var(--warning)' : 'var(--danger)';
+    const mlText = d.ml_pred === 1 ? '<span style="color:var(--success);font-weight:700;"><i class="fa-solid fa-robot me-1"></i>Selected</span>'
+        : d.ml_pred === 0 ? '<span style="color:var(--danger);font-weight:700;"><i class="fa-solid fa-robot me-1"></i>Not Selected</span>'
+        : '<span style="color:var(--text-muted);">N/A</span>';
+    const matchedHtml = (d.matched_skills||[]).map(s => `<span class="skill-tag matched" style="padding:0.25rem 0.6rem;">${s}</span>`).join('');
+    const otherHtml = (d.skills||[]).filter(s => !(d.matched_skills||[]).includes(s)).slice(0, 15).map(s => `<span class="skill-tag" style="padding:0.25rem 0.6rem;">${s}</span>`).join('');
+
+    document.getElementById('detail-body').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:rgba(0,0,0,0.02);border-radius:var(--radius-md);padding:1rem;">
+                <div style="font-size:0.75rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;">Match Score</div>
+                <div style="font-size:2rem;font-weight:800;color:${matchColor};">${d.match_score}%</div>
+            </div>
+            <div style="background:rgba(0,0,0,0.02);border-radius:var(--radius-md);padding:1rem;">
+                <div style="font-size:0.75rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;">ML Prediction</div>
+                <div style="font-size:1.1rem;margin-top:0.3rem;">${mlText}</div>
+                ${d.ml_prob !== null ? `<div style="font-size:0.85rem;color:var(--primary);font-weight:600;margin-top:0.2rem;">Confidence: ${(d.ml_prob*100).toFixed(1)}%</div>` : ''}
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div><span style="font-size:0.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Email</span><div style="font-weight:600;">${d.email||'—'}</div></div>
+            <div><span style="font-size:0.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Phone</span><div style="font-weight:600;">${d.phone||'—'}</div></div>
+            <div><span style="font-size:0.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Experience</span><div style="font-weight:600;">${d.experience} years</div></div>
+            <div><span style="font-size:0.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Education</span><div style="font-weight:600;">${d.education||'—'}</div></div>
+            <div><span style="font-size:0.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Status</span><div><span class="badge ${d.status==='Eligible'?'badge-success':'badge-danger'}">${d.status}</span></div></div>
+            <div><span style="font-size:0.78rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Review</span><div><span class="review-badge ${d.review_status}">${d.review_status}</span></div></div>
+        </div>
+        ${matchedHtml ? `<div style="margin-bottom:1rem;"><h4 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--secondary);"><i class="fa-solid fa-bullseye text-primary me-1"></i>Matched Skills</h4><div style="display:flex;flex-wrap:wrap;gap:0.35rem;">${matchedHtml}</div></div>` : ''}
+        ${otherHtml ? `<div style="margin-bottom:1rem;"><h4 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--text-muted);">Other Skills</h4><div style="display:flex;flex-wrap:wrap;gap:0.35rem;">${otherHtml}</div></div>` : ''}
+        ${d.summary ? `<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(0,0,0,0.06);"><h4 style="font-size:0.9rem;margin-bottom:0.5rem;color:var(--secondary);">Resume Summary</h4><p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;background:rgba(0,0,0,0.02);padding:1rem;border-radius:var(--radius-md);white-space:pre-wrap;">${d.summary}</p></div>` : ''}
+        <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+            <button onclick="quickAction(${d.id},'reviewed')" class="action-btn btn-review" style="flex:1;justify-content:center;"><i class="fa-solid fa-check"></i> Reviewed</button>
+            <button onclick="quickAction(${d.id},'flagged')" class="action-btn btn-flag" style="flex:1;justify-content:center;"><i class="fa-solid fa-flag"></i> Flag</button>
+            <button onclick="quickAction(${d.id},'rejected')" class="action-btn btn-reject" style="flex:1;justify-content:center;"><i class="fa-solid fa-xmark"></i> Reject</button>
+        </div>
+    `;
+    document.getElementById('detail-overlay').classList.add('active');
+}
+
+function closeDetail() { document.getElementById('detail-overlay').classList.remove('active'); }
+function navDetail(dir) {
+    const next = currentDetailIdx + dir;
+    if (next >= 0 && next < allCandidates.length) openDetail(next);
+}
+document.getElementById('detail-overlay').addEventListener('click', e => { if (e.target === document.getElementById('detail-overlay')) closeDetail(); });
+
+async function quickAction(id, action) {
+    await fetch(`/api/batch/${BATCH_ID}/action`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({candidate_ids: [id], action})
+    });
+    showToast(`Marked as ${action}`, 'success');
+    loadResults();
+    closeDetail();
+}
+
+// ===== Compare =====
+async function doCompare() {
+    const ids = Array.from(selectedIds);
+    if (ids.length < 2 || ids.length > 4) { showToast('Select 2-4 candidates to compare', 'info'); return; }
+    const resp = await fetch(`/api/batch/${BATCH_ID}/compare`, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({candidate_ids: ids})
+    });
+    const data = await resp.json();
+    if (!data.success) return;
+
+    const cols = data.candidates.length + 1;
+    const fields = ['Name','Match Score','Experience','Education','Status','ML Prediction','Matched Skills'];
+    const bestMatch = Math.max(...data.candidates.map(c=>c.match_score));
+    const bestExp = Math.max(...data.candidates.map(c=>c.experience));
+
+    let html = `<div class="compare-grid" style="grid-template-columns:140px repeat(${data.candidates.length},1fr);">`;
+    // Header row
+    html += `<div class="compare-cell header">Field</div>`;
+    data.candidates.forEach(c => { html += `<div class="compare-cell header">${c.name||'Unknown'}</div>`; });
+    // Data rows
+    const rows = [
+        {label:'Match Score', key:'match_score', fmt:c=>`<strong style="color:${c.match_score>=75?'var(--success)':c.match_score>=50?'var(--warning)':'var(--danger)'};">${c.match_score}%</strong>`, best:c=>c.match_score===bestMatch},
+        {label:'Experience', key:'experience', fmt:c=>`${c.experience} yrs`, best:c=>c.experience===bestExp},
+        {label:'Education', key:'education', fmt:c=>c.education||'—'},
+        {label:'Status', key:'status', fmt:c=>`<span class="badge ${c.status==='Eligible'?'badge-success':'badge-danger'}" style="font-size:0.75rem;">${c.status}</span>`},
+        {label:'ML Pred', key:'ml_pred', fmt:c=>c.ml_pred===1?'<span style="color:var(--success);font-weight:700;">✓ Selected</span>':'<span style="color:var(--danger);">✗</span>'},
+        {label:'Skills Match', key:'matched_skills', fmt:c=>(c.matched_skills||[]).slice(0,5).map(s=>`<span class="skill-tag matched">${s}</span>`).join(' ')},
+    ];
+    rows.forEach(r => {
+        html += `<div class="compare-cell header">${r.label}</div>`;
+        data.candidates.forEach(c => {
+            const isBest = r.best ? r.best(c) : false;
+            html += `<div class="compare-cell ${isBest?'best':''}">${r.fmt(c)}</div>`;
+        });
+    });
+    html += '</div>';
+
+    document.getElementById('compare-body').innerHTML = html;
+    document.getElementById('compare-overlay').classList.add('active');
+}
+
+function closeCompare() { document.getElementById('compare-overlay').classList.remove('active'); }
+document.getElementById('compare-overlay').addEventListener('click', e => { if (e.target === document.getElementById('compare-overlay')) closeCompare(); });
+
+// ===== Filter Listeners =====
+let debounceTimer;
+document.getElementById('search-input').addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(loadResults, 300); });
+document.getElementById('filter-status').addEventListener('change', loadResults);
+document.getElementById('filter-review').addEventListener('change', loadResults);
+document.getElementById('sort-select').addEventListener('change', loadResults);
+
+// ===== Toast =====
+function showToast(message, type) {
+    const colors = {success:'#22c55e',danger:'#ef4444',info:'#3b82f6'};
+    const toast = document.createElement('div');
+    toast.style.cssText = `position:fixed;bottom:5rem;right:2rem;z-index:99999;background:${colors[type]||colors.info};color:white;padding:0.85rem 1.25rem;border-radius:12px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.2);font-size:0.9rem;display:flex;align-items:center;gap:0.5rem;animation:fadeInUp 0.3s ease;`;
+    toast.innerHTML = `<i class="fa-solid fa-${type==='success'?'circle-check':'circle-info'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity='0'; toast.style.transition='all 0.3s'; setTimeout(()=>toast.remove(),300); }, 2500);
+}
+
+// ===== Keyboard shortcuts =====
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeDetail(); closeCompare(); }
+});
+
+// Initial load
+loadResults();
+</script>
+{% endblock %}

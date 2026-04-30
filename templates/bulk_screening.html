@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Resume Screening | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-between align-center mb-5 pb-2 pt-2 animate-up">
+    <div class="d-flex align-center gap-4">
+        <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--accent-light) 0%,rgba(255,255,255,0.8) 100%);color:var(--accent);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:1.75rem;box-shadow:var(--shadow-sm);border:1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div>
+            <h2 style="margin-bottom:0.25rem;">Bulk Resume Screening</h2>
+            <p style="margin-bottom:0;font-size:1rem;color:var(--text-muted);font-weight:500;">Upload 50-100 resumes for AI-powered batch analysis</p>
+        </div>
+    </div>
+    <a href="/dashboard" class="btn btn-outline" style="border-radius:999px;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Dashboard
+    </a>
+</div>
+
+<!-- Phase Tabs -->
+<div class="phase-tabs animate-up" style="animation-delay:0.05s;border-radius:var(--radius-lg);overflow:hidden;">
+    <div class="phase-tab active" id="tab-config"><i class="fa-solid fa-sliders me-1"></i> 1. Configure</div>
+    <div class="phase-tab" id="tab-upload"><i class="fa-solid fa-cloud-arrow-up me-1"></i> 2. Upload</div>
+    <div class="phase-tab" id="tab-process"><i class="fa-solid fa-microchip me-1"></i> 3. Processing</div>
+</div>
+
+<!-- PHASE 1: Configuration -->
+<div id="phase-config" class="animate-up" style="animation-delay:0.1s;">
+    <div class="grid grid-2" style="gap:2rem;">
+        <!-- Left: Job Requirements -->
+        <div class="card" style="padding:2.5rem;">
+            <h3 style="font-size:1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-briefcase text-primary"></i> Job Requirements
+            </h3>
+            <div class="form-group floating-label" style="margin-bottom:1.75rem;">
+                <input type="text" id="bulk-role" placeholder=" " required>
+                <label for="bulk-role">Job Role / Position</label>
+            </div>
+            <div class="form-group floating-label" style="margin-bottom:1.75rem;">
+                <input type="text" id="bulk-skills" placeholder=" " required>
+                <label for="bulk-skills">Required Skills (comma-separated)</label>
+            </div>
+            <div class="form-group floating-label" style="margin-bottom:1.75rem;">
+                <input type="number" id="bulk-experience" value="0" min="0" placeholder=" ">
+                <label for="bulk-experience">Minimum Experience (Years)</label>
+            </div>
+            <div class="form-group floating-label" style="margin-bottom:1rem;">
+                <input type="text" id="bulk-batch-name" placeholder=" ">
+                <label for="bulk-batch-name">Batch Name (optional)</label>
+            </div>
+        </div>
+
+        <!-- Right: File Upload -->
+        <div class="card" style="padding:2.5rem;">
+            <h3 style="font-size:1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-cloud-arrow-up text-accent"></i> Upload Resumes
+            </h3>
+            <div class="bulk-upload-zone" id="bulk-drop-zone">
+                <div style="width:70px;height:70px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--primary);margin-bottom:1rem;box-shadow:var(--shadow-md);">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                </div>
+                <h4 style="margin-bottom:0.5rem;">Drag & Drop Resumes</h4>
+                <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0;">or click to browse <strong>(PDF, DOCX, TXT — max 100 files)</strong></p>
+                <input type="file" id="bulk-file-input" multiple accept=".pdf,.doc,.docx,.txt">
+            </div>
+
+            <!-- File count & chips -->
+            <div id="file-preview" style="display:none;margin-top:1rem;">
+                <div class="d-flex justify-between align-center mb-2">
+                    <span id="file-count" style="font-weight:700;font-size:0.9rem;color:var(--primary);"></span>
+                    <button id="clear-files-btn" style="background:none;border:none;color:var(--danger);font-weight:600;font-size:0.85rem;cursor:pointer;">
+                        <i class="fa-solid fa-xmark me-1"></i> Clear All
+                    </button>
+                </div>
+                <div class="file-chips" id="file-chips"></div>
+            </div>
+
+            <button id="start-screening-btn" class="btn w-100 mt-4" style="padding:1rem;font-size:1.05rem;" disabled>
+                <i class="fa-solid fa-rocket me-2"></i> Start Bulk Screening
+            </button>
+            <p id="validation-msg" style="display:none;text-align:center;margin-top:0.75rem;font-size:0.85rem;color:var(--danger);font-weight:600;"></p>
+        </div>
+    </div>
+</div>
+
+<!-- PHASE 2: Processing -->
+<div id="phase-processing" style="display:none;">
+    <div class="card text-center" style="padding:3rem;max-width:600px;margin:0 auto;">
+        <div class="progress-ring-container">
+            <svg width="140" height="140">
+                <circle class="progress-ring-bg" cx="70" cy="70" r="60"/>
+                <circle class="progress-ring-bar" id="progress-ring" cx="70" cy="70" r="60"
+                    stroke-dasharray="376.99" stroke-dashoffset="376.99"/>
+            </svg>
+            <div class="progress-ring-text">
+                <span id="progress-count">0</span>
+                <small id="progress-label">Processing...</small>
+            </div>
+        </div>
+        <h3 style="margin-top:1.5rem;margin-bottom:0.5rem;" id="processing-title">Analyzing Resumes...</h3>
+        <p style="color:var(--text-muted);font-size:0.95rem;" id="processing-subtitle">Our AI is parsing and scoring each resume concurrently</p>
+
+        <div style="margin-top:1.5rem;background:rgba(0,0,0,0.02);border-radius:var(--radius-md);padding:0.75rem 1rem;">
+            <div class="d-flex justify-between" style="font-size:0.85rem;color:var(--text-muted);">
+                <span><i class="fa-solid fa-circle-check text-success me-1"></i> Success: <strong id="success-count">0</strong></span>
+                <span><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i> Errors: <strong id="error-count">0</strong></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ===== State =====
+    let selectedFiles = [];
+    const fileInput = document.getElementById('bulk-file-input');
+    const dropZone = document.getElementById('bulk-drop-zone');
+    const filePreview = document.getElementById('file-preview');
+    const fileChips = document.getElementById('file-chips');
+    const fileCount = document.getElementById('file-count');
+    const startBtn = document.getElementById('start-screening-btn');
+    const validationMsg = document.getElementById('validation-msg');
+
+    // ===== Drag & Drop =====
+    ['dragenter','dragover','dragleave','drop'].forEach(e => {
+        dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false);
+    });
+    ['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('dragover')));
+    ['dragleave','drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('dragover')));
+
+    dropZone.addEventListener('drop', e => {
+        const files = Array.from(e.dataTransfer.files);
+        addFiles(files);
+    });
+
+    fileInput.addEventListener('change', () => {
+        addFiles(Array.from(fileInput.files));
+        fileInput.value = '';
+    });
+
+    document.getElementById('clear-files-btn').addEventListener('click', () => {
+        selectedFiles = [];
+        renderFiles();
+    });
+
+    function addFiles(files) {
+        const validExts = ['.pdf', '.docx', '.doc', '.txt'];
+        for (const f of files) {
+            const ext = '.' + f.name.split('.').pop().toLowerCase();
+            if (!validExts.includes(ext)) continue;
+            if (selectedFiles.length >= 100) break;
+            if (!selectedFiles.find(sf => sf.name === f.name && sf.size === f.size)) {
+                selectedFiles.push(f);
+            }
+        }
+        renderFiles();
+    }
+
+    function renderFiles() {
+        if (selectedFiles.length === 0) {
+            filePreview.style.display = 'none';
+            startBtn.disabled = true;
+            return;
+        }
+        filePreview.style.display = 'block';
+        fileCount.textContent = `${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''} selected`;
+        fileChips.innerHTML = selectedFiles.map((f, i) => `
+            <span class="file-chip">
+                <i class="fa-solid fa-file-lines" style="color:var(--primary);font-size:0.7rem;"></i>
+                ${f.name.length > 25 ? f.name.slice(0, 22) + '...' : f.name}
+                <span class="remove-chip" onclick="removeFile(${i})"><i class="fa-solid fa-xmark"></i></span>
+            </span>
+        `).join('');
+        validate();
+    }
+
+    function removeFile(idx) {
+        selectedFiles.splice(idx, 1);
+        renderFiles();
+    }
+
+    function validate() {
+        const role = document.getElementById('bulk-role').value.trim();
+        const skills = document.getElementById('bulk-skills').value.trim();
+        if (!role || !skills) {
+            validationMsg.style.display = 'block';
+            validationMsg.textContent = 'Please fill in Job Role and Required Skills';
+            startBtn.disabled = true;
+            return false;
+        }
+        if (selectedFiles.length === 0) {
+            validationMsg.style.display = 'block';
+            validationMsg.textContent = 'Please select at least one resume file';
+            startBtn.disabled = true;
+            return false;
+        }
+        validationMsg.style.display = 'none';
+        startBtn.disabled = false;
+        return true;
+    }
+
+    document.getElementById('bulk-role').addEventListener('input', validate);
+    document.getElementById('bulk-skills').addEventListener('input', validate);
+
+    // ===== Start Screening =====
+    startBtn.addEventListener('click', async () => {
+        if (!validate()) return;
+
+        const formData = new FormData();
+        formData.append('role', document.getElementById('bulk-role').value.trim());
+        formData.append('skills', document.getElementById('bulk-skills').value.trim());
+        formData.append('experience', document.getElementById('bulk-experience').value || '0');
+        formData.append('batch_name', document.getElementById('bulk-batch-name').value.trim() ||
+            document.getElementById('bulk-role').value.trim() + ' Batch');
+
+        selectedFiles.forEach(f => formData.append('resumes', f));
+
+        // Switch to processing phase
+        document.getElementById('phase-config').style.display = 'none';
+        document.getElementById('phase-processing').style.display = 'block';
+        document.getElementById('tab-config').classList.remove('active');
+        document.getElementById('tab-config').classList.add('done');
+        document.getElementById('tab-upload').classList.add('done');
+        document.getElementById('tab-process').classList.add('active');
+
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Uploading...';
+
+        try {
+            const resp = await fetch('/api/bulk-upload', { method: 'POST', body: formData });
+            const data = await resp.json();
+
+            if (!data.success) {
+                alert('Upload failed: ' + (data.error || 'Unknown error'));
+                return;
+            }
+
+            // Start SSE progress tracking
+            trackProgress(data.batch_id, data.total);
+        } catch (err) {
+            alert('Network error: ' + err.message);
+        }
+    });
+
+    function trackProgress(batchId, total) {
+        const ring = document.getElementById('progress-ring');
+        const circumference = 2 * Math.PI * 60; // r=60
+        ring.style.strokeDasharray = circumference;
+
+        const evtSource = new EventSource(`/api/batch/${batchId}/progress`);
+        evtSource.onmessage = (event) => {
+            const d = JSON.parse(event.data);
+            const pct = total > 0 ? d.processed / total : 0;
+            const offset = circumference * (1 - pct);
+            ring.style.strokeDashoffset = offset;
+
+            document.getElementById('progress-count').textContent = `${d.processed}/${total}`;
+            document.getElementById('success-count').textContent = d.success_count;
+            document.getElementById('error-count').textContent = d.error_count;
+
+            if (d.status === 'completed') {
+                evtSource.close();
+                document.getElementById('processing-title').textContent = 'Screening Complete!';
+                document.getElementById('processing-subtitle').textContent = 'Redirecting to results...';
+                document.getElementById('progress-label').textContent = 'Done!';
+                ring.style.stroke = 'var(--success)';
+
+                setTimeout(() => {
+                    window.location.href = `/batch/${batchId}`;
+                }, 1500);
+            }
+        };
+        evtSource.onerror = () => {
+            evtSource.close();
+            // Fallback: redirect after delay
+            setTimeout(() => { window.location.href = `/batch/${batchId}`; }, 2000);
+        };
+    }
+</script>
+{% endblock %}

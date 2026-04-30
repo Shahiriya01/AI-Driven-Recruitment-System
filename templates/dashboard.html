@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-between align-center mb-5 pb-2 animate-up">
+    <div>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;"><span style="font-weight: 300; color: var(--text-muted);">Welcome back,</span> {{ user }}!</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0;">Here's an overview of your recruitment pipeline today.</p>
+    </div>
+    <div>
+        <a href="/screen" class="btn btn-accent px-4 py-2">
+            <i class="fa-solid fa-plus me-2"></i> New Screening
+        </a>
+    </div>
+</div>
+
+<!-- Stats Overview with Glass Cards -->
+<div class="grid grid-4 mb-5 animate-up" style="animation-delay: 0.1s;">
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-light) 0%, rgba(255,255,255,0.8) 100%); color: var(--primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Total Screened</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.total }}</h3>
+        </div>
+    </div>
+    
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--success); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Eligible</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.eligible }}</h3>
+        </div>
+    </div>
+    
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--warning); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">ML Selected</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.ml_selected }}</h3>
+        </div>
+    </div>
+    
+    <div class="card p-4 d-flex align-center gap-4">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--danger); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-user-xmark"></i>
+        </div>
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Not Eligible</p>
+            <h3 style="margin-bottom: 0; font-size: 1.75rem; color: var(--text-main);">{{ stats.not_eligible }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Main Quick Actions Grid -->
+<div class="d-flex justify-between align-center mt-5 mb-4 animate-up" style="animation-delay: 0.2s;">
+    <h3 style="margin: 0; font-size: 1.5rem;">Quick Actions</h3>
+</div>
+
+<div class="grid grid-3 mb-5 animate-up" style="animation-delay: 0.2s;">
+    <div class="card text-center d-flex flex-column justify-between p-5">
+        <div>
+            <div class="feature-icon-wrapper mx-auto" style="color: var(--primary); margin: 0 auto 1.5rem;">
+                <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Resume Screening</h3>
+            <p style="font-size: 0.95rem;">Upload resumes and use our AI to match them against job descriptions automatically.</p>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="/screen" class="btn w-100 py-3"><i class="fa-solid fa-expand me-2"></i> Scan New Candidates</a>
+        </div>
+    </div>
+
+    <div class="card text-center d-flex flex-column justify-between p-5">
+        <div>
+            <div class="feature-icon-wrapper mx-auto" style="color: var(--success); margin: 0 auto 1.5rem;">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Candidate Performance</h3>
+            <p style="font-size: 0.95rem;">Track interview scores, statuses, and performance metrics for your candidates.</p>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="/performance" class="btn btn-outline w-100 py-3" style="border-radius: 999px;"><i class="fa-solid fa-eye me-2"></i> View Analytics</a>
+        </div>
+    </div>
+
+    <div class="card text-center d-flex flex-column justify-between p-5" style="border: 1px dashed rgba(0,0,0,0.1); background: rgba(255,255,255,0.4);">
+        <div style="opacity: 0.6;">
+            <div class="feature-icon-wrapper mx-auto" style="color: var(--text-muted); margin: 0 auto 1.5rem; background: transparent; border: 1px solid rgba(0,0,0,0.1); box-shadow: none;">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Account Settings</h3>
+            <p style="font-size: 0.95rem;">Manage your company profile, email preferences, and password settings.</p>
+        </div>
+        <div class="mt-4 text-center">
+            <button class="btn btn-secondary w-100 py-3" style="opacity: 0.6; cursor: not-allowed;"><i class="fa-solid fa-lock me-2"></i> Coming Soon</button>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Glass Table -->
+<div class="card mt-5 p-0 overflow-hidden animate-up" style="animation-delay: 0.3s;">
+    <div class="p-4" style="border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.3);">
+        <h3 style="margin: 0; font-size: 1.25rem;">Recent Screenings</h3>
+        <div class="d-flex align-center gap-3">
+            <a href="/performance" style="font-size: 0.9rem; font-weight: 600; color: var(--primary); text-decoration: none;">View All <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            {% if records %}
+            <button id="clear-all-btn" onclick="confirmClearAll()"
+                style="background: rgba(239,68,68,0.08); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="fa-solid fa-trash-can"></i> Clear All History
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="p-3" style="background: rgba(255,255,255,0.25); border-bottom: 1px solid rgba(0,0,0,0.04);">
+        <form method="GET" action="/dashboard" id="filter-form" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                <input type="text" name="q" value="{{ q }}" placeholder="Search by name or role..."
+                    style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 999px; font-size: 0.9rem; background: rgba(255,255,255,0.8); outline: none; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'">
+            </div>
+            <select name="status" onchange="document.getElementById('filter-form').submit()"
+                style="padding: 0.65rem 1rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 999px; font-size: 0.9rem; background: rgba(255,255,255,0.8); color: var(--text-main); cursor: pointer; outline: none; min-width: 150px;">
+                <option value="">All Status</option>
+                <option value="Eligible" {% if status == 'Eligible' %}selected{% endif %}>Eligible</option>
+                <option value="Not Eligible" {% if status == 'Not Eligible' %}selected{% endif %}>Not Eligible</option>
+            </select>
+            <button type="submit"
+                style="padding: 0.65rem 1.25rem; border: none; border-radius: 999px; background: var(--primary); color: white; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: opacity 0.2s;"
+                onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                <i class="fa-solid fa-filter"></i> Filter
+            </button>
+            {% if q or status %}
+            <a href="/dashboard"
+                style="padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-decoration: none; border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; gap: 0.3rem; transition: background 0.2s;"
+                onmouseover="this.style.background='rgba(0,0,0,0.03)'" onmouseout="this.style.background='transparent'">
+                <i class="fa-solid fa-xmark"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+        {% if q or status %}
+        <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--text-muted);">
+            Showing {{ total_filtered }} result{{ 's' if total_filtered != 1 else '' }}
+            {% if q %} for "<strong>{{ q }}</strong>"{% endif %}
+            {% if status %} with status <strong>{{ status }}</strong>{% endif %}
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="table-container p-3" style="overflow-x: auto;">
+        {% if records %}
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
+            <thead>
+                <tr style="background: rgba(37,99,235,0.06); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; color: var(--text-muted);">
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">#</th>
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">Candidate</th>
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">Role Applied</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">Match %</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">Experience</th>
+                    <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700;">Date</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">Status</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">ML Pred</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">ML Prob</th>
+                    <th style="padding: 0.85rem 1rem; text-align: center; font-weight: 700;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="screenings-tbody">
+            {% for row in records %}
+            <tr id="row-{{ row.id }}" style="border-bottom: 1px solid rgba(0,0,0,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.03)'" onmouseout="this.style.background='transparent'">
+                <td style="padding: 0.85rem 1rem; color: var(--text-muted); font-weight: 600;">{{ row.id }}</td>
+                <td style="padding: 0.85rem 1rem; font-weight: 600; color: var(--secondary);">{{ row.name }}</td>
+                <td style="padding: 0.85rem 1rem; color: var(--text-main);">{{ row.role_applied }}</td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    <span style="font-weight: 700; color: {% if row.match_score is not none and row.match_score >= 75 %}var(--success){% elif row.match_score is not none and row.match_score >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+                        {{ row.match_score if row.match_score is not none else 0 }}%
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    {% if row.experience is not none and row.experience != '' and row.experience != 0 %}
+                        <span style="font-weight: 600; color: var(--text-main);">{{ row.experience }} yrs</span>
+                    {% else %}
+                        <span style="color: var(--text-muted);">&mdash;</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 0.85rem 1rem; color: var(--text-muted);">{{ row.date }}</td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    <span class="badge {% if row.status == 'Eligible' %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 0.78rem;">
+                        {{ row.status }}
+                    </span>
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    {% if row.ml_pred is not none %}
+                        <span style="font-weight: 700; color: {% if row.ml_pred == 1 %}var(--success){% else %}var(--danger){% endif %};">
+                            {{ '✓ Selected' if row.ml_pred == 1 else '✗ Rejected' }}
+                        </span>
+                    {% else %}
+                        <span style="color: var(--text-muted);">&mdash;</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: center; font-weight: 600; color: var(--primary);">
+                    {% if row.ml_prob is not none %}
+                        {{ '%.1f'|format(row.ml_prob * 100) }}%
+                    {% else %}
+                        <span style="color: var(--text-muted);">&mdash;</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 0.85rem 1rem; text-align: center;">
+                    <button onclick="confirmDelete({{ row.id }}, '{{ row.name }}')"
+                        title="Delete candidate"
+                        style="background: rgba(239,68,68,0.07); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-sm); padding: 0.35rem 0.7rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.3rem;"
+                        onmouseover="this.style.background='rgba(239,68,68,0.18)'"
+                        onmouseout="this.style.background='rgba(239,68,68,0.07)'">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 1.25rem 0 0.5rem; flex-wrap: wrap;">
+            {% if page > 1 %}
+            <a href="?page={{ page - 1 }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
+                style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); text-decoration: none; font-size: 0.9rem; font-weight: 600; color: var(--primary); background: white; transition: background 0.2s;"
+                onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='white'">
+                <i class="fa-solid fa-chevron-left"></i> Prev
+            </a>
+            {% endif %}
+
+            {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                <span style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); background: var(--primary); color: white; font-weight: 700; font-size: 0.9rem; min-width: 38px; text-align: center;">{{ p }}</span>
+                {% elif (p <= 3) or (p >= total_pages - 1) or (p >= page - 1 and p <= page + 1) %}
+                <a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
+                    style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.08); text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--text-main); background: white; transition: background 0.2s; min-width: 38px; text-align: center;"
+                    onmouseover="this.style.background='rgba(0,0,0,0.03)'" onmouseout="this.style.background='white'">{{ p }}</a>
+                {% elif (p == 4 and page > 4) or (p == total_pages - 2 and page < total_pages - 2) %}
+                <span style="color: var(--text-muted); padding: 0 0.25rem;">&hellip;</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
+                style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); text-decoration: none; font-size: 0.9rem; font-weight: 600; color: var(--primary); background: white; transition: background 0.2s;"
+                onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='white'">
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center p-5" style="color: var(--text-muted);" id="empty-state">
+            <i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+            {% if q or status %}
+            <p style="font-size: 1rem; font-weight: 500;">No results match your search. <a href="/dashboard" style="color: var(--primary);">Clear filters</a></p>
+            {% else %}
+            <p style="font-size: 1rem; font-weight: 500;">No screening records yet. <a href="/screen" style="color: var(--primary);">Start screening candidates!</a></p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============ Confirmation Modal ============ -->
+<div id="confirm-modal" style="
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;">
+    <div style="
+        background: white; border-radius: var(--radius-xl, 20px); padding: 2.5rem 2rem;
+        width: 100%; max-width: 420px; margin: 1rem; box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+        animation: fadeInUp 0.25s ease;">
+        <!-- Icon -->
+        <div style="width: 72px; height: 72px; background: rgba(239,68,68,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; border: 2px solid rgba(239,68,68,0.25);">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.75rem; color: var(--danger);"></i>
+        </div>
+        <h3 id="modal-title" style="text-align: center; font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--secondary);">Delete Candidate?</h3>
+        <p id="modal-body" style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.6;"></p>
+        <div style="display: flex; gap: 1rem;">
+            <button onclick="closeModal()"
+                style="flex: 1; padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.12); background: white; font-weight: 600; cursor: pointer; color: var(--text-main); transition: background 0.2s;"
+                onmouseover="this.style.background='rgba(0,0,0,0.04)'" onmouseout="this.style.background='white'">
+                Cancel
+            </button>
+            <button id="modal-confirm-btn"
+                style="flex: 1; padding: 0.85rem; border-radius: var(--radius-md); border: none; background: var(--danger); color: white; font-weight: 700; cursor: pointer; font-size: 1rem; transition: opacity 0.2s;"
+                onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                <i class="fa-solid fa-trash-can me-2"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let pendingAction  = null;   // function to call on confirm
+    const modal        = document.getElementById('confirm-modal');
+    const modalTitle   = document.getElementById('modal-title');
+    const modalBody    = document.getElementById('modal-body');
+    const confirmBtn   = document.getElementById('modal-confirm-btn');
+
+    function openModal(title, body, action) {
+        modalTitle.textContent  = title;
+        modalBody.textContent   = body;
+        pendingAction           = action;
+        modal.style.display     = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        pendingAction       = null;
+    }
+
+    // Close when clicking backdrop
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+
+    confirmBtn.addEventListener('click', function() {
+        if (pendingAction) {
+            confirmBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Deleting…';
+            confirmBtn.disabled  = true;
+            pendingAction();
+        }
+    });
+
+    // ---- Single candidate delete ----
+    function confirmDelete(id, name) {
+        openModal(
+            'Delete Candidate?',
+            `Are you sure you want to permanently delete "${name}"? This action cannot be undone.`,
+            () => deleteCandidate(id)
+        );
+    }
+
+    function deleteCandidate(id) {
+        fetch(`/candidate/delete/${id}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                closeModal();
+                resetConfirmBtn();
+                if (data.success) {
+                    const row = document.getElementById(`row-${id}`);
+                    if (row) {
+                        row.style.transition = 'opacity 0.35s, transform 0.35s';
+                        row.style.opacity    = '0';
+                        row.style.transform  = 'translateX(30px)';
+                        setTimeout(() => {
+                            row.remove();
+                            checkEmptyTable();
+                        }, 380);
+                    }
+                } else {
+                    showToast('Error: ' + (data.error || 'Could not delete.'), 'danger');
+                }
+            })
+            .catch(() => {
+                closeModal();
+                resetConfirmBtn();
+                showToast('Network error. Please try again.', 'danger');
+            });
+    }
+
+    // ---- Clear all history ----
+    function confirmClearAll() {
+        openModal(
+            'Clear All History?',
+            'This will permanently delete ALL screening records for your account. This action cannot be undone.',
+            () => clearAllHistory()
+        );
+    }
+
+    function clearAllHistory() {
+        fetch('/screening/delete-all', { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                closeModal();
+                resetConfirmBtn();
+                if (data.success) {
+                    // Remove all rows with animation
+                    const tbody = document.getElementById('screenings-tbody');
+                    if (tbody) {
+                        tbody.style.transition = 'opacity 0.3s';
+                        tbody.style.opacity    = '0';
+                        setTimeout(() => {
+                            tbody.closest('table').remove();
+                            showEmptyState();
+                            // Hide clear-all btn
+                            const btn = document.getElementById('clear-all-btn');
+                            if (btn) btn.remove();
+                        }, 320);
+                    }
+                    showToast('All screening history cleared.', 'success');
+                }
+            })
+            .catch(() => {
+                closeModal();
+                resetConfirmBtn();
+                showToast('Network error. Please try again.', 'danger');
+            });
+    }
+
+    function checkEmptyTable() {
+        const tbody = document.getElementById('screenings-tbody');
+        if (tbody && tbody.children.length === 0) {
+            tbody.closest('table').remove();
+            showEmptyState();
+            const btn = document.getElementById('clear-all-btn');
+            if (btn) btn.remove();
+        }
+    }
+
+    function showEmptyState() {
+        const container = document.querySelector('.table-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center p-5" style="color: var(--text-muted);" id="empty-state">
+                    <i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p style="font-size: 1rem; font-weight: 500;">No screening records yet.
+                        <a href="/screen" style="color: var(--primary);">Start screening candidates!</a></p>
+                </div>`;
+        }
+    }
+
+    function resetConfirmBtn() {
+        confirmBtn.innerHTML = '<i class="fa-solid fa-trash-can me-2"></i> Delete';
+        confirmBtn.disabled  = false;
+    }
+
+    // ---- Toast notification ----
+    function showToast(message, type) {
+        const colors = { success: '#22c55e', danger: '#ef4444', info: '#3b82f6' };
+        const toast  = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 99999;
+            background: ${colors[type] || colors.info}; color: white;
+            padding: 1rem 1.5rem; border-radius: 12px; font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-size: 0.95rem;
+            display: flex; align-items: center; gap: 0.6rem;
+            animation: fadeInUp 0.3s ease;`;
+        toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'triangle-exclamation'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity   = '0';
+            toast.style.transform = 'translateY(20px)';
+            toast.style.transition = 'all 0.3s ease';
+            setTimeout(() => toast.remove(), 320);
+        }, 3500);
+    }
+</script>
+{% endblock %}

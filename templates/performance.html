@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Analytics | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-between align-center mb-5 pb-2 pt-2 animate-up">
+    <div class="d-flex align-center gap-4">
+        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(255,255,255,0.8) 100%); color: var(--success); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,0.5);">
+            <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <div>
+            <h2 style="margin-bottom: 0.25rem;">Performance Analytics</h2>
+            <p style="margin-bottom: 0; font-size: 1rem; color: var(--text-muted); font-weight: 500;">Model accuracy and recruitment metrics</p>
+        </div>
+    </div>
+    <a href="/dashboard" class="btn btn-outline" style="border-radius: 999px;">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- System Accuracy Widgets -->
+<div class="grid grid-3 mb-5 animate-up" style="animation-delay: 0.1s;">
+    <div class="card p-5 d-flex align-center justify-between" style="background: rgba(255,255,255,0.8);">
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Avg Match Score</p>
+            <h2 style="margin-bottom: 0; font-size: 2.5rem; color: var(--text-main); font-weight: 800;">{{ avg_score }} <span style="font-size: 1.25rem; color: var(--text-muted); font-weight: 600;">%</span></h2>
+        </div>
+        <div style="width: 80px; height: 80px; position: relative;">
+            <canvas id="accuracyChart"></canvas>
+            <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--accent); filter: blur(20px); z-index: -1;"></div>
+        </div>
+    </div>
+    
+    <div class="card p-5 d-flex align-center justify-between" style="background: rgba(255,255,255,0.8);">
+        <div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Eligibility Rate</p>
+            <h2 style="margin-bottom: 0; font-size: 2.5rem; color: var(--text-main); font-weight: 800;">{{ eligible_pct }} <span style="font-size: 1.25rem; color: var(--text-muted); font-weight: 600;">%</span></h2>
+        </div>
+        <div style="width: 80px; height: 80px; position: relative;">
+            <canvas id="avgScoreChart"></canvas>
+            <div style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--success); filter: blur(20px); z-index: -1;"></div>
+        </div>
+    </div>
+
+    <!-- Neumorphic active gradient card -->
+    <div class="card p-5 d-flex align-center justify-between" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: white; border: none; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);">
+        <div style="position: relative; z-index: 2;">
+            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Processed Resumes</p>
+            <h2 style="margin-bottom: 0.5rem; font-size: 2.5rem; color: white; font-weight: 800;">{{ total }}</h2>
+        </div>
+        <div style="font-size: 4rem; color: white; opacity: 0.15; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); z-index: 1;">
+            <i class="fa-solid fa-layer-group"></i>
+        </div>
+    </div>
+</div>
+
+<div class="grid animate-up" style="animation-delay: 0.2s;">
+    <!-- Main Candidates Glass Table -->
+    <div class="card p-0 overflow-hidden" style="padding: 0 !important;">
+        <div class="p-4 d-flex justify-between align-center" style="border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.4);">
+            <h3 style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ranking-star text-primary"></i> Candidate Leaderboard</h3>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="p-3" style="background: rgba(255,255,255,0.25); border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <form method="GET" action="/performance" id="perf-filter-form" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px; position: relative;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                    <input type="text" name="q" value="{{ q }}" placeholder="Search by name or role..."
+                        style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 999px; font-size: 0.9rem; background: rgba(255,255,255,0.8); outline: none; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'">
+                </div>
+                <select name="status" onchange="document.getElementById('perf-filter-form').submit()"
+                    style="padding: 0.65rem 1rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 999px; font-size: 0.9rem; background: rgba(255,255,255,0.8); color: var(--text-main); cursor: pointer; outline: none; min-width: 150px;">
+                    <option value="">All Status</option>
+                    <option value="Eligible" {% if status == 'Eligible' %}selected{% endif %}>Eligible</option>
+                    <option value="Not Eligible" {% if status == 'Not Eligible' %}selected{% endif %}>Not Eligible</option>
+                </select>
+                <button type="submit"
+                    style="padding: 0.65rem 1.25rem; border: none; border-radius: 999px; background: var(--primary); color: white; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                    <i class="fa-solid fa-filter"></i> Filter
+                </button>
+                {% if q or status %}
+                <a href="/performance"
+                    style="padding: 0.65rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-decoration: none; border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; gap: 0.3rem; transition: background 0.2s;"
+                    onmouseover="this.style.background='rgba(0,0,0,0.03)'" onmouseout="this.style.background='transparent'">
+                    <i class="fa-solid fa-xmark"></i> Clear
+                </a>
+                {% endif %}
+            </form>
+            {% if q or status %}
+            <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                Showing {{ total_filtered }} result{{ 's' if total_filtered != 1 else '' }}
+                {% if q %} for "<strong>{{ q }}</strong>"{% endif %}
+                {% if status %} with status <strong>{{ status }}</strong>{% endif %}
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="table-container p-4">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Candidate Profile</th>
+                        <th>Role Target</th>
+                        <th>Experience</th>
+                        <th style="width: 200px;">Match Score</th>
+                        <th>Status</th>
+                        <th class="text-center">ML Pred</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if candidates %}
+                    {% for c in candidates %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-center gap-3">
+                                <div style="width: 45px; height: 45px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary-light), white); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.5); box-shadow: var(--shadow-sm);">
+                                    {{ c.name[0] if c.name else '?' }}
+                                </div>
+                                <div>
+                                    <span style="font-weight: 700; font-size: 1rem; display: block; color: var(--secondary);">{{ c.name }}</span>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Screened {{ c.date }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span style="color: var(--text-muted); font-weight: 500;"><i class="fa-solid fa-briefcase me-2 text-light"></i>{{ c.role_applied }}</span></td>
+                        <td>
+                            {% if c.experience is not none and c.experience != 0 %}
+                                <span style="font-weight: 700; color: var(--text-main);">{{ c.experience }} <span style="font-weight: 500; color: var(--text-muted); font-size: 0.85rem;">yrs</span></span>
+                            {% else %}
+                                <span style="color: var(--text-muted);">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-center gap-3">
+                                <div style="flex: 1; background: rgba(0,0,0,0.05); border-radius: 999px; height: 8px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+                                    <div style="background: linear-gradient(90deg, {% if c.match_score is not none and c.match_score >= 75 %}var(--success), #4ade80{% elif c.match_score is not none and c.match_score >= 50 %}var(--warning), #fcd34d{% else %}var(--danger), #f87171{% endif %}); width: {{ c.match_score if c.match_score is not none else 0 }}%; height: 100%; border-radius: 999px; transition: width 1s ease;"></div>
+                                </div>
+                                <span style="font-weight: 800; font-size: 1rem; display: inline-block; width: 45px; text-align: right; color: var(--text-main);">{{ c.match_score if c.match_score is not none else 0 }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {% if c.status == 'Eligible' %}badge-success{% else %}badge-danger{% endif %}"><i class="fa-regular fa-circle-dot me-1" style="font-size: 0.75rem;"></i> {{ c.status }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span style="font-size: 0.85rem; font-weight: 500;">
+                                {% if c.ml_pred is not none %}
+                                    <span style="color: {% if c.ml_pred == 1 %}var(--success){% else %}var(--danger){% endif %}; font-weight: 700;">
+                                        {{ '&#10003;' if c.ml_pred == 1 else '&#10007;' }}
+                                        {% if c.ml_prob is not none %}{{ '%.0f'|format(c.ml_prob * 100) }}%{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span style="color: var(--text-muted);">&mdash;</span>
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 3rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-inbox" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.3;"></i>
+                            {% if q or status %}
+                            No results match your search. <a href="/performance" style="color: var(--primary);">Clear filters</a>
+                            {% else %}
+                            No candidates screened yet. <a href="/screen" style="color: var(--primary);">Start screening!</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 1.25rem 0 0.5rem; flex-wrap: wrap;">
+                {% if page > 1 %}
+                <a href="?page={{ page - 1 }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
+                    style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); text-decoration: none; font-size: 0.9rem; font-weight: 600; color: var(--primary); background: white; transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='white'">
+                    <i class="fa-solid fa-chevron-left"></i> Prev
+                </a>
+                {% endif %}
+
+                {% for p in range(1, total_pages + 1) %}
+                    {% if p == page %}
+                    <span style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); background: var(--primary); color: white; font-weight: 700; font-size: 0.9rem; min-width: 38px; text-align: center;">{{ p }}</span>
+                    {% elif (p <= 3) or (p >= total_pages - 1) or (p >= page - 1 and p <= page + 1) %}
+                    <a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
+                        style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.08); text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--text-main); background: white; transition: background 0.2s; min-width: 38px; text-align: center;"
+                        onmouseover="this.style.background='rgba(0,0,0,0.03)'" onmouseout="this.style.background='white'">{{ p }}</a>
+                    {% elif (p == 4 and page > 4) or (p == total_pages - 2 and page < total_pages - 2) %}
+                    <span style="color: var(--text-muted); padding: 0 0.25rem;">&hellip;</span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page < total_pages %}
+                <a href="?page={{ page + 1 }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
+                    style="padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); text-decoration: none; font-size: 0.9rem; font-weight: 600; color: var(--primary); background: white; transition: background 0.2s;"
+                    onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='white'">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize mini charts using Chart.js with modern rounded UI styles
+    document.addEventListener('DOMContentLoaded', function() {
+        const createDonut = (ctxId, val, color) => {
+            const v = parseFloat(val) || 0;  // guard against NaN
+            new Chart(document.getElementById(ctxId), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [v, 100 - v],
+                        backgroundColor: [color, 'rgba(0,0,0,0.05)'],
+                        borderWidth: 0,
+                        cutout: '75%',
+                        borderRadius: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { tooltip: { enabled: false } },
+                    animation: { animateRotate: true, duration: 2000, easing: 'easeOutQuart' }
+                }
+            });
+        };
+
+        createDonut('accuracyChart', {{ avg_score }}, '#38bdf8');
+        createDonut('avgScoreChart', {{ eligible_pct }}, '#22c55e');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}NextGen HR | AI Candidate Screening{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content animate-up">
+        <div class="badge badge-info mb-4" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); backdrop-filter: blur(4px);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> AI-Powered Recruitment Platform
+        </div>
+        <h1>Hire Smarter & Faster with AI Insight</h1>
+        <p>Transform your hiring process. Our AI-driven platform instantly screens, analyzes, and ranks candidate resumes to find your perfect match, saving you hundreds of hours.</p>
+        
+        <div class="d-flex gap-3 mt-4">
+            <a href="/screen" class="btn btn-lg">
+                Start Screening <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+            <a href="/about" class="btn btn-outline btn-lg">
+                Discover Features
+            </a>
+        </div>
+        
+        <div class="mt-5 pt-4 d-flex align-center gap-4" style="font-size: 0.95rem; font-weight: 500; color: var(--text-muted); border-top: 1px solid rgba(0,0,0,0.05);">
+            <span class="d-flex align-center gap-2"><i class="fa-solid fa-circle-check text-success"></i> NLP Parsing</span>
+            <span class="d-flex align-center gap-2"><i class="fa-solid fa-circle-check text-success"></i> ML Rankings</span>
+            <span class="d-flex align-center gap-2"><i class="fa-solid fa-circle-check text-success"></i> Instant Insights</span>
+        </div>
+    </div>
+    
+    <div class="hero-image animate-up" style="animation-delay: 0.2s;">
+        <!-- Using a placeholder pattern if the static image is missing, but fallback to the original if it exists -->
+        <img src="{{ url_for('static', filename='images/home_image.png') }}" alt="AI HR Illustration" onerror="this.src='https://illustrations.popsy.co/amber/shaking-hands.svg'" style="max-height: 500px;">
+    </div>
+</section>
+
+<section class="features mt-5 pt-4 mb-5 pb-5">
+    <div class="text-center mb-5 pb-2 animate-up">
+        <h2 style="font-size: 2.25rem;">Why Choose NextGen?</h2>
+        <p style="max-width: 600px; margin: 0 auto; font-size: 1.1rem;">Streamline your HR workflow with state-of-the-art tools designed for modern recruitment teams.</p>
+    </div>
+    
+    <div class="grid grid-3">
+        <div class="card text-center animate-up" style="animation-delay: 0.1s;">
+            <div class="feature-icon-wrapper" style="color: var(--primary);">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <h3>Smart Resume Parsing</h3>
+            <p>Automatically extract skills, experience, and contact details from PDF and Word documents in seconds with advanced NLP.</p>
+        </div>
+        
+        <div class="card text-center animate-up" style="animation-delay: 0.2s;">
+            <div class="feature-icon-wrapper" style="color: var(--accent);">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <h3>AI Candidate Ranking</h3>
+            <p>Our machine learning engine matches candidate profiles against job requirements for highly accurate, bias-free screening.</p>
+        </div>
+        
+        <div class="card text-center animate-up" style="animation-delay: 0.3s;">
+            <div class="feature-icon-wrapper" style="color: var(--success);">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <h3>Deep HR Analytics</h3>
+            <p>Get comprehensive dashboards visualizing your talent pool, model accuracy, and pipeline metrics in real-time.</p>
+        </div>
+    </div>
+</section>
+
+<section class="text-center animate-up mb-5 pb-5" style="animation-delay: 0.4s;">
+    <div class="card" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: white; border: none; padding: 4rem 2rem;">
+        <h2 style="color: white; font-size: 2.5rem; margin-bottom: 1.5rem;">Ready to automate your pipeline?</h2>
+        <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2.5rem;">Join forward-thinking companies using NextGen HR to build better teams, faster.</p>
+        <a href="/register" class="btn btn-accent" style="padding: 1rem 2.5rem; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);">Create HR Account</a>
+    </div>
+</section>
+{% endblock %}

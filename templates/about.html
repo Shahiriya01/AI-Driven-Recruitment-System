@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}About | NextGen HR{% endblock %}
+
+{% block content %}
+<div class="card animate-up" style="max-width: 900px; margin: 0 auto; padding: 4rem; text-align: center;">
+    <div style="margin-bottom: 3rem;">
+        <div class="feature-icon-wrapper mx-auto" style="color: var(--primary); font-size: 2.5rem; width: 90px; height: 90px; margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-microchip"></i>
+        </div>
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">About the System</h1>
+        <p style="font-size: 1.25rem; max-width: 700px; margin: 0 auto; color: var(--text-muted); line-height: 1.8;">NextGen HR is an AI-powered Resume Screening System fully engineered to optimize and streamline candidate pipelines. Powered by state-of-the-art Natural Language Processing.</p>
+    </div>
+
+    <div class="grid grid-2 text-left" style="gap: 3rem;">
+        <div style="background: rgba(255,255,255,0.4); border: 1px solid rgba(0,0,0,0.05); padding: 2rem; border-radius: var(--radius-lg);">
+            <h3 style="display: flex; align-items: center; gap: 0.75rem; color: var(--secondary); margin-bottom: 1.5rem;">
+                <div style="width: 40px; height: 40px; background: var(--accent-light); color: var(--accent); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-bullseye"></i></div> Core Functionality
+            </h3>
+            <p style="color: var(--text-muted); line-height: 1.7;">The system instantly parses unstructured resumes, automatically extracting crucial data like candidate names, core skills, and exact years of professional experience across PDF and DOCX formats.</p>
+            <p style="color: var(--text-muted); line-height: 1.7;">By actively cross-referencing this extracted timeline against dynamic HR-defined job requirements, the AI model generates real-time, bias-free match scores to isolate top talent.</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.4); border: 1px solid rgba(0,0,0,0.05); padding: 2rem; border-radius: var(--radius-lg);">
+            <h3 style="display: flex; align-items: center; gap: 0.75rem; color: var(--secondary); margin-bottom: 1.5rem;">
+                <div style="width: 40px; height: 40px; background: rgba(34, 197, 94, 0.1); color: var(--success); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-screwdriver-wrench"></i></div> Technology Stack
+            </h3>
+            <div class="grid" style="gap: 1rem;">
+                <div class="d-flex align-center gap-3" style="background: white; padding: 1rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">
+                    <i class="fa-brands fa-python fa-fw text-primary" style="font-size: 1.5rem;"></i> <strong>Backend Architecture:</strong> Python 3 / Flask
+                </div>
+                <div class="d-flex align-center gap-3" style="background: white; padding: 1rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">
+                    <i class="fa-solid fa-brain fa-fw text-accent" style="font-size: 1.5rem;"></i> <strong>AI Models:</strong> NLP / Random Forest
+                </div>
+                <div class="d-flex align-center gap-3" style="background: white; padding: 1rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">
+                    <i class="fa-solid fa-file-pdf fa-fw text-danger" style="font-size: 1.5rem;"></i> <strong>Document Engines:</strong> PyMuPDF / docx
+                </div>
+                <div class="d-flex align-center gap-3" style="background: white; padding: 1rem; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">
+                    <i class="fa-brands fa-html5 fa-fw text-warning" style="font-size: 1.5rem;"></i> <strong>Frontend UI:</strong> HTML5 / CSS Glassmorphism
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
