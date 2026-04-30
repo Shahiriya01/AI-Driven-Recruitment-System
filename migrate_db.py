@@ -43,7 +43,17 @@ def migrate():
     # ── Create base resumes table if missing ─────────────────────────
     c.execute('''
     CREATE TABLE IF NOT EXISTS resumes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id      INTEGER,
+        name         TEXT,
+        role_applied TEXT,
+        match_score  INTEGER,
+        experience   REAL,
+        date         TEXT,
+        status       TEXT,
+        ml_pred      INTEGER,
+        ml_prob      REAL,
+        resume_path  TEXT
     )''')
     print("  [OK] Core tables initialized")
     print("  [OK] screening_batches table OK")
