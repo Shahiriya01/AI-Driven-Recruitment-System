@@ -11,6 +11,17 @@ def migrate():
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
 
+    # ── Create users table if missing ────────────────────────────────
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        email    TEXT,
+        fullname TEXT,
+        company  TEXT,
+        password TEXT
+    )''')
+
     # ── Create screening_batches table if missing ────────────────────
     c.execute('''
     CREATE TABLE IF NOT EXISTS screening_batches (
@@ -28,6 +39,13 @@ def migrate():
         completed_at    TEXT,
         FOREIGN KEY (user_id) REFERENCES users(id)
     )''')
+
+    # ── Create base resumes table if missing ─────────────────────────
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS resumes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT
+    )''')
+    print("  [OK] Core tables initialized")
     print("  [OK] screening_batches table OK")
 
     existing = [row[1] for row in c.execute("PRAGMA table_info(resumes)").fetchall()]
