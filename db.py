@@ -45,18 +45,28 @@ def init_db():
     # Resumes table — full correct schema with user_id for tenant isolation
     c.execute('''
     CREATE TABLE IF NOT EXISTS resumes (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id      INTEGER,
-        name         TEXT,
-        role_applied TEXT,
-        match_score  INTEGER,
-        experience   REAL,
-        date         TEXT,
-        status       TEXT,
-        ml_pred      INTEGER,
-        ml_prob      REAL,
-        resume_path  TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id        INTEGER,
+        batch_id       INTEGER,
+        name           TEXT,
+        role_applied   TEXT,
+        match_score    INTEGER,
+        experience     REAL,
+        date           TEXT,
+        status         TEXT,
+        review_status  TEXT DEFAULT 'pending',
+        ml_pred        INTEGER,
+        ml_prob        REAL,
+        resume_path    TEXT,
+        skills_json    TEXT,
+        matched_skills TEXT,
+        education      TEXT,
+        email          TEXT,
+        phone          TEXT,
+        summary        TEXT,
+        resume_text    TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (batch_id) REFERENCES screening_batches(id)
     )''')
 
     # Migration: add missing columns for users upgrading from older DB
