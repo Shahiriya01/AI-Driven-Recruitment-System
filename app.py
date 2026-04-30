@@ -1,4 +1,5 @@
 # app.py
+import warnings
 from flask import (Flask, render_template, request, redirect, url_for,
                    session, jsonify, Response, stream_with_context)
 import os
@@ -21,14 +22,16 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads"
 os.makedirs("uploads", exist_ok=True)
 
-app.secret_key = "12192f46fb10ac35c643fcef3fc543df8fafe3c0cadafce3b8470f8456b9b8a6"
+app.secret_key = os.environ.get("SECRET_KEY", "12192f46fb10ac35c643fcef3fc543df8fafe3c0cadafce3b8470f8456b9b8a6")
 
 init_db()
 
 # Load ML model once at startup (graceful if model not yet trained)
 MODEL_PATH = os.path.join("models", "model.pkl")
 try:
-    rf_model = joblib.load(MODEL_PATH)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        rf_model = joblib.load(MODEL_PATH)
 except Exception:
     rf_model = None
 
@@ -438,10 +441,10 @@ def screen():
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
         file.save(filepath)
 
-        if file.filename.lower().endswith(".pdf"):
-            text = extract_text_from_pdf(filepath)
-        else:
-            text = extract_text_from_docx(filepath)
+        text = extract_text_from_file(filepath)
+        if not text or len(text.strip()) < 10:
+            return render_template("screening.html", result=None,
+                                   error="Could not extract text from the uploaded file.")
 
         name       = extract_name(text)
         experience = extract_experience(text)         # improved multi-strategy
@@ -1134,4 +1137,5 @@ def batch_results_page(batch_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)

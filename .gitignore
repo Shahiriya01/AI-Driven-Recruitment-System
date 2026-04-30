@@ -7,14 +7,22 @@ __pycache__/
 dist/
 build/
 *.egg
+*.whl
 
 # Virtual environment
 venv/
+.venv/
 env/
+ENV/
+.python-version
+
+# Environment variables
 .env
+.flaskenv
 
 # Database
 *.db
+instance/
 
 # Uploads
 uploads/
@@ -28,7 +36,18 @@ models/*.joblib
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # OS
 Thumbs.db
 .DS_Store
+*.bak
+*.tmp
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
